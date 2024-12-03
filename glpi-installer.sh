@@ -22,14 +22,14 @@ mysql -e "FLUSH PRIVILEGES;"
 
 # Télécharger et extraire GLPI
 echo "Téléchargement et extraction de GLPI..."
-wget -q https://github.com/glpi-project/glpi/releases/download/10.0.7/glpi-10.0.7.tgz
-tar -xzf glpi-10.0.7.tgz
-rm glpi-10.0.7.tgz
+wget -q https://github.com/glpi-project/glpi/releases/download/10.0.17/glpi-10.0.17.tgz
+tar -xzf glpi-10.0.17.tgz
+rm glpi-10.0.17.tgz
 
 # Copier les fichiers GLPI dans le répertoire Apache
 echo "Copie des fichiers GLPI dans le répertoire Apache..."
 cp -r glpi /var/www/html/
-chown -R www-data:www-data /var/www/html/glpi
+chown -R www-data:www-data /var/www/html/
 rm -rf glpi
 
 # Deplacer les dossiers "config" et "files" en dehors d'apache
@@ -37,24 +37,15 @@ mv /var/www/html/config /etc/glpi
 mv /var/www/html/files /var/lib/glpi
 
 # Rediriger le dossier config
-touch /var/www/html/inc/downstream.php
-echo 
-  "<?php
-  \ndefine('GLPI_CONFIG_DIR', '/etc/glpi/');
-  \nif (file_exists(GLPI_CONFIG_DIR . '/local_define.php')) {
-  \nrequire_once GLPI_CONFIG_DIR . '/local_define.php';
-  \n}"
->> /var/www/html/inc/downstream.php
+cp downstream.php /var/www/html/inc/downstream.php
+rm downstream.php
 
 # Rediriger le dossier file
-touch /etc/glpi/local_define.php
-echo
-  "<?php
-  \ndefine('GLPI_VAR_DIR', '/var/lib/glpi');"
->>  /etc/glpi/local_define.php
+cp define.php /etc/glpi/local_define.php
+rm localdefine.php
 
 # Php.ini modification variable "session.cookie_httponly = on"
-cat /etc/php/7.4/apache2/php.ini | sed -e 's/session.cookie_httponly =/session.cookie_httponly = on/' > /etc/php/7.4/apache2/php.ini
+cat /etc/php/8.2/apache2/php.ini | sed -e 's/session.cookie_httponly =/session.cookie_httponly = on/' > /etc/php/8.2/apache2/php.ini
 
 # Redémarrer Apache et MariaDB
 echo "Redémarrage d'Apache et MariaDB..."
@@ -62,4 +53,5 @@ systemctl restart apache2
 systemctl restart mariadb
 
 # Ouvrir le navigateur Web et terminer l'installation via l'interface Web
-echo "GLPI est maintenant opérationnel. Ouvrez votre navigateur et accédez à http://<adresse_ip_serveur>/glpi pour terminer l'installation."
+ipadd=$(ifconfig | grep inet | grep -v -E ‘inet6|127.0.0.1’ | tr -d [:alpha:] | tr -s [:space:] | cut -d: -f2)
+echo "GLPI est maintenant opérationnel. Ouvrez votre navigateur et accédez à http://$ipadd/glpi pour terminer l'installation."
