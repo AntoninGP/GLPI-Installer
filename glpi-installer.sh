@@ -52,7 +52,7 @@ rm localdefine.php
 mkdir /var/log/glpi
 
 # Autoriser l'accés au repertoires config, files et log par l'utilisateur www-data
-echo "Mise à jour des autorisations..."
+echo "Mise à jour des autorisations"
 chown -R www-data:www-data /var/lib/glpi
 chown -R www-data:www-data /var/log/glpi
 chown -R www-data:www-data /etc/glpi  
@@ -61,10 +61,9 @@ chown -R www-data:www-data /etc/glpi
 cat /etc/php/8.2/apache2/php.ini | sed -e 's/session.cookie_httponly =/session.cookie_httponly = on/' > /etc/php/8.2/apache2/php.ini
 
 # Redémarrer Apache et MariaDB
-echo "Redémarrage d'Apache et MariaDB..."
+echo "Redémarrage d'Apache et MariaDB"
 systemctl restart apache2
 systemctl restart mariadb
 
 # Ouvrir le navigateur Web et terminer l'installation via l'interface Web
-ipadd=$(ifconfig | grep inet | grep -v -E ‘inet6|127.0.0.1’ | tr -d [:alpha:] | tr -s [:space:] | cut -d: -f2)
-echo "GLPI est maintenant opérationnel. Ouvrez votre navigateur et accédez à http://$ipadd/glpi pour terminer l'installation."
+echo "GLPI est maintenant opérationnel. Ouvrez votre navigateur et accédez à votre serveur pour terminer l'installation."
